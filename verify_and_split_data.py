@@ -87,10 +87,12 @@ def split(origin_dir, train_dir, test_dir, bad_imgs):
 
     # 创建文件夹
     if not os.path.exists(train_dir):
-        os.mkdir(train_dir)
+        # os.mkdir(train_dir)
+        os.makedirs(train_dir)
 
     if not os.path.exists(test_dir):
-        os.mkdir(test_dir)
+        # os.mkdir(test_dir)
+        os.makedirs(test_dir)
 
     # 测试集
     test_count = int(total_count*0.05)
