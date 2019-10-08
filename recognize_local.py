@@ -7,11 +7,15 @@
     rec_times = 1  识别的次数
 """
 import datetime
+import logging
+
 import requests
 from io import BytesIO
 import time
 import json
 import os
+
+from PIL import Image
 
 
 def recognize_captcha(test_path, save_path, image_suffix):
@@ -29,27 +33,38 @@ def recognize_captcha(test_path, save_path, image_suffix):
 
     # 识别结果
     print("接口响应: {}".format(r.text))
+    logging.info("接口响应: {}".format(r.text))
+    print(json.loads(r.text))
     predict_text = json.loads(r.text)["value"]
     now_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print("【{}】 耗时：{}ms 预测结果：{}".format(now_time, int((e-s)*1000), predict_text))
+    logging.info("【{}】 耗时：{}ms 预测结果：{}".format(now_time, int((e - s) * 1000), predict_text))
 
     # 保存文件
     img_name = "{}_{}.{}".format(predict_text, str(time.time()).replace(".", ""), image_suffix)
+    if not os.path.exists(save_path):
+        # os.mkdir(root_dir)
+        os.makedirs(save_path)
     path = os.path.join(save_path, img_name)
     with open(path, "wb") as f:
         f.write(content)
     print("============== end ==============")
+    logging.info("============== end ==============")
+    img = Image.open(path)
+    img.show()
+    return predict_text
 
 
-def main():
+
+def main(test_path="sample/test/0kaw_15595266125863638.png"):
     with open("conf/sample_config.json", "r") as f:
         sample_conf = json.load(f)
 
     # 配置相关参数
-    test_path = "sample/test/0401_15440848576253345.png"  # 测试识别的图片路径
+    # test_path = "sample/test/0034_15568964974586008.png"  # 测试识别的图片路径
     save_path = sample_conf["local_image_dir"]  # 保存的地址
     image_suffix = sample_conf["image_suffix"]  # 文件后缀
-    recognize_captcha(test_path, save_path, image_suffix)
+    return recognize_captcha(test_path, save_path, image_suffix)
 
 
 if __name__ == '__main__':
